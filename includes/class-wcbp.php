@@ -114,15 +114,20 @@ class WCBP {
 	}
 
 
-    /**
+	/**
 	 * Rewrite Permalinks
 	 *
 	 * @package WooCommerce Breadcrumb Permalinks
 	 * @author  Captain Theme <info@captaintheme.com>
 	 * @since   1.0.0
+	 *
+	 * @param $link
+	 * @param WP_Post $post
+	 *
+	 * @return string|void
 	 */
 
-	public function post_type_link( $link, $post = 0 ) {
+	public function post_type_link( $link, WP_Post $post ) {
 
 		global $product;
 		
