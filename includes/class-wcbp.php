@@ -34,6 +34,7 @@ class WCBP {
 
 		add_action( 'admin_notices', array( $this, 'admin_notice' ) );
 		add_action( 'admin_init', array( $this, 'nag_ignore' ) );
+		add_action( 'registered_post_type', array( $this, 'add_permastruct' ), 10, 2 );
 		add_filter( 'post_type_link', array( $this, 'post_type_link' ), 1, 3 );
 
 		// Add an action link pointing to the options page.
@@ -191,5 +192,27 @@ class WCBP {
 		return false;
 	}
 
+
+
+
+	public function add_permastruct( $post_type, $args ) {
+
+
+		$wcbp_base_setting = trim(get_option( 'wcbp_permalinks_base' ), '/');
+		if(!$wcbp_base_setting) {
+			$wcbp_base_setting = 'shop';
+		}
+
+		if( strpos($wcbp_base_setting, '%product_cat%') ) {
+			add_rewrite_tag('%product_cat%', '(.+?)', "post_type=product&product_cat=");
+		}
+		else {
+			add_rewrite_tag('%product_slug%', "($wcbp_base_setting)", "post_type=product&pt_slug=");
+		}
+		// for post id.
+		//add_permastruct( $post_type, $wcbp_base_setting.'/%post_id%/' , $args );
+		//add_permastruct( $post_type, $wcbp_base_setting.'/%postname%/' , $args );
+
+	}
 
 }
