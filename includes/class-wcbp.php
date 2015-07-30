@@ -34,7 +34,6 @@ class WCBP {
 
 		add_action( 'admin_notices', array( $this, 'admin_notice' ) );
 		add_action( 'admin_init', array( $this, 'nag_ignore' ) );
-		add_action( 'init', array( $this, 'rewrites_init' ) );
 		add_filter( 'post_type_link', array( $this, 'post_type_link' ), 1, 3 );
 
 		// Add an action link pointing to the options page.
@@ -90,7 +89,7 @@ class WCBP {
 
     	global $current_user;
         $user_id = $current_user->ID;
-            
+
         if ( isset( $_GET['settings-updated'] ) && 'true' == $_GET['settings-updated'] ) {
              add_user_meta( $user_id, 'wcbp_ignore_notice', 'true', true );
         }
@@ -129,55 +128,68 @@ class WCBP {
 
 	public function post_type_link( $link, WP_Post $post ) {
 
-		global $product;
-		
-		$wcbp_base_setting = get_option( 'wcbp_permalinks_base' );
+		if ( $post->post_type == 'product' ){
 
-		if ( $wcbp_base_setting ) {
-			$wcbp_base = get_option( 'wcbp_permalinks_base' );
-		} else {
-			$wcbp_base = 'shop';
-		}
+			if ( $terms = wp_get_post_terms($post->ID, 'product_cat') ) {
 
-	    if ( $post->post_type == 'product' ){
+				$terms = $this->remove_parent_terms($terms);
 
-	    	if ( $terms = wc_get_product_terms( $post->ID, 'product_cat', array( 'orderby' => 'parent', 'order' => 'DESC' ) ) ) {
+				$main_term = reset($terms);
 
-				$main_term = $terms[0];
+				$ancestors = array_reverse(get_ancestors( $main_term->term_id, 'product_cat' ));
 
-				$ancestors = get_ancestors( $main_term->term_id, 'product_cat' );
-
-				$ancestors = array_reverse( $ancestors );
-
-				$the_ancestor_slug = '';
+				$term_slugs = array();
 
 				foreach ( $ancestors as $ancestor ) {
 					$ancestor = get_term( $ancestor, 'product_cat' );
 
 					if ( ! is_wp_error( $ancestor ) && $ancestor )
-						$the_ancestor_slug = $ancestor->slug;
+						$term_slugs[] = $ancestor->slug;
 				}
 
-				return home_url( $wcbp_base . '/' . $the_ancestor_slug . '/' . $main_term->slug . '/' . $post->post_name );
+				$term_slugs[] = $main_term->slug;
+				$term_slug = implode('/', $term_slugs);
+
+				$search  = array('%post_id%', '%postname%', '%product_cat%');
+				$replace = array($post->ID, $post->post_name, $term_slug);
+
+				return str_replace( $search, $replace, $link );
 
 			} else {
 				return $link;
 			}
 
-	    } else {
-	        return $link;
-	    }
+		} else {
+			return $link;
+		}
 
 	}
 
-	public function rewrites_init() {
+	public function remove_parent_terms( Array $terms ) {
+		$new_term = array();
+		foreach($terms as $key => $term) {
 
-	    add_rewrite_rule (
-	        'product/([0-9]+)?$',
-	        'index.php?post_type=product&p=$matches[1]',
-	        'top'
-	    );
+			if( ! $this->exsist_child( $term->term_id, $terms ) ) {
+				$new_term =[$term];
+			}
+		}
 
+		return $new_term;
 	}
+
+	public function exsist_child( $id, $terms ) {
+		if( !$id ) {
+			return false;
+		}
+
+		foreach( $terms as $key => $term ) {
+			if( $term->parent == $id ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 
 }
