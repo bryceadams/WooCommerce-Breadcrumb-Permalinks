@@ -166,6 +166,13 @@ class WCBP {
 
 	}
 
+	/**
+	 *
+	 * Remove Parent Term from Term list.
+	 * @param array $terms
+	 *
+	 * @return array
+	 */
 	public function remove_parent_terms( Array $terms ) {
 		$new_term = array();
 		foreach($terms as $key => $term) {
@@ -178,6 +185,12 @@ class WCBP {
 		return $new_term;
 	}
 
+	/**
+	 * @param int $id term ID.
+	 * @param array $terms term arrays.
+	 *
+	 * @return bool
+	 */
 	public function exsist_child( $id, $terms ) {
 		if( !$id ) {
 			return false;
@@ -193,8 +206,10 @@ class WCBP {
 	}
 
 
-
-
+	/**
+	 * @param string $post_type
+	 * @param array $args
+	 */
 	public function add_permastruct( $post_type, $args ) {
 
 
