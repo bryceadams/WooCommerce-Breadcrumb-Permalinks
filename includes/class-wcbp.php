@@ -218,15 +218,10 @@ class WCBP {
 			$wcbp_base_setting = 'shop';
 		}
 
-		if( strpos($wcbp_base_setting, '%product_cat%') ) {
-			add_rewrite_tag('%product_cat%', '(.+?)', "post_type=product&product_cat=");
-		}
-		else {
-			add_rewrite_tag('%product_slug%', "($wcbp_base_setting)", "post_type=product&pt_slug=");
-		}
+		add_rewrite_tag('%product_cat%', '(.+?)', "post_type=product&product_cat=");
 		// for post id.
 		//add_permastruct( $post_type, $wcbp_base_setting.'/%post_id%/' , $args );
-		//add_permastruct( $post_type, $wcbp_base_setting.'/%postname%/' , $args );
+		add_permastruct( $post_type, $wcbp_base_setting.'/%product_cat%/%postname%/' , $args );
 
 	}
 
