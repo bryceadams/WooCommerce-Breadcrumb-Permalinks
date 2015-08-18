@@ -179,7 +179,7 @@ class WCBP {
 		$new_term = array();
 		foreach ( $terms as $key => $term ) {
 
-			if ( ! $this->exist_child( $term->term_id, $terms ) ) {
+			if ( ! $this->exist_child_term( $term, $terms ) ) {
 				$new_term = [ $term ];
 			}
 		}
@@ -196,7 +196,7 @@ class WCBP {
 	 *
 	 * @return bool
 	 */
-	public function exist_child( $term, Array $terms ) {
+	public function exist_child_term( $term, Array $terms ) {
 		if ( empty( $term->term_id ) ) {
 			return false;
 		}
