@@ -212,16 +212,22 @@ class WCBP {
 	 */
 	public function add_permastruct( $post_type, $args ) {
 
+		if( $post_type == 'product' ) {
+			$wcbp_base_setting = trim(get_option( 'wcbp_permalinks_base' ), '/');
+			if(!$wcbp_base_setting) {
+				$wcbp_base_setting = 'shop';
+			}
 
-		$wcbp_base_setting = trim(get_option( 'wcbp_permalinks_base' ), '/');
-		if(!$wcbp_base_setting) {
-			$wcbp_base_setting = 'shop';
+			add_rewrite_tag('%product_cat%', '(.+?)', "post_type=product&product_cat=");
+			// for post id.
+			//add_permastruct( $post_type, $wcbp_base_setting.'/%post_id%/' , $args );
+			//var_dump($args);
+			$permastruct_args = $args->rewrite;
+			$permastruct_args['feed'] = $permastruct_args['feeds'];
+			add_permastruct( $post_type, $wcbp_base_setting.'/%product_cat%/%postname%' , $permastruct_args );
 		}
 
-		add_rewrite_tag('%product_cat%', '(.+?)', "post_type=product&product_cat=");
-		// for post id.
-		//add_permastruct( $post_type, $wcbp_base_setting.'/%post_id%/' , $args );
-		add_permastruct( $post_type, $wcbp_base_setting.'/%product_cat%/%postname%/' , $args );
+
 
 	}
 
