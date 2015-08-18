@@ -129,30 +129,31 @@ class WCBP {
 
 	public function post_type_link( $link, WP_Post $post ) {
 
-		if ( $post->post_type == 'product' ){
+		if ( $post->post_type == 'product' ) {
 
-			if ( $terms = wp_get_post_terms($post->ID, 'product_cat') ) {
+			if ( $terms = wp_get_post_terms( $post->ID, 'product_cat' ) ) {
 
-				$terms = $this->remove_parent_terms($terms);
+				$terms = $this->remove_parent_terms( $terms );
 
-				$main_term = reset($terms);
+				$main_term = reset( $terms );
 
-				$ancestors = array_reverse(get_ancestors( $main_term->term_id, 'product_cat' ));
+				$ancestors = array_reverse( get_ancestors( $main_term->term_id, 'product_cat' ) );
 
 				$term_slugs = array();
 
 				foreach ( $ancestors as $ancestor ) {
 					$ancestor = get_term( $ancestor, 'product_cat' );
 
-					if ( ! is_wp_error( $ancestor ) && $ancestor )
+					if ( ! is_wp_error( $ancestor ) && $ancestor ) {
 						$term_slugs[] = $ancestor->slug;
+					}
 				}
 
 				$term_slugs[] = $main_term->slug;
-				$term_slug = implode('/', $term_slugs);
+				$term_slug    = implode( '/', $term_slugs );
 
-				$search  = array('%post_id%', '%postname%', '%product_cat%');
-				$replace = array($post->ID, $post->post_name, $term_slug);
+				$search  = array( '%post_id%', '%postname%', '%product_cat%' );
+				$replace = array( $post->ID, $post->post_name, $term_slug );
 
 				return str_replace( $search, $replace, $link );
 
@@ -169,16 +170,17 @@ class WCBP {
 	/**
 	 *
 	 * Remove Parent Term from Term list.
+	 *
 	 * @param array $terms
 	 *
 	 * @return array
 	 */
 	public function remove_parent_terms( Array $terms ) {
 		$new_term = array();
-		foreach($terms as $key => $term) {
+		foreach ( $terms as $key => $term ) {
 
-			if( ! $this->exist_child( $term->term_id, $terms ) ) {
-				$new_term =[$term];
+			if ( ! $this->exist_child( $term->term_id, $terms ) ) {
+				$new_term = [ $term ];
 			}
 		}
 
@@ -195,12 +197,12 @@ class WCBP {
 	 * @return bool
 	 */
 	public function exist_child( $term, Array $terms ) {
-		if( empty( $term->term_id ) ) {
+		if ( empty( $term->term_id ) ) {
 			return false;
 		}
 
-		foreach( $terms as $obj ) {
-			if( $obj->parent == $term->term_id ) {
+		foreach ( $terms as $obj ) {
+			if ( $obj->parent == $term->term_id ) {
 				return true;
 			}
 		}
@@ -217,17 +219,17 @@ class WCBP {
 	 */
 	public function add_permastruct( $post_type, $args ) {
 
-		if( $post_type == 'product' ) {
+		if ( $post_type == 'product' ) {
 			$wcbp_base_setting = trim( get_option( 'wcbp_permalinks_base' ), '/' );
-			if(!$wcbp_base_setting) {
+			if ( ! $wcbp_base_setting ) {
 				$wcbp_base_setting = 'shop';
 			}
 
 			add_rewrite_tag( '%product_cat%', '(.+?)', "post_type=product&product_cat=" );
 
-			$permastruct_args = $args->rewrite;
+			$permastruct_args         = $args->rewrite;
 			$permastruct_args['feed'] = $permastruct_args['feeds'];
-			add_permastruct( $post_type, $wcbp_base_setting.'/%product_cat%/%postname%' , $permastruct_args );
+			add_permastruct( $post_type, $wcbp_base_setting . '/%product_cat%/%postname%', $permastruct_args );
 			// for post id.
 			//add_permastruct( $post_type, $wcbp_base_setting.'/%post_id%' ,  $permastruct_args );
 		}
