@@ -177,7 +177,7 @@ class WCBP {
 		$new_term = array();
 		foreach($terms as $key => $term) {
 
-			if( ! $this->exsist_child( $term->term_id, $terms ) ) {
+			if( ! $this->exist_child( $term->term_id, $terms ) ) {
 				$new_term =[$term];
 			}
 		}
@@ -186,18 +186,21 @@ class WCBP {
 	}
 
 	/**
-	 * @param int $id term ID.
-	 * @param array $terms term arrays.
+	 *
+	 * search parent term in $terms
+	 *
+	 * @param object $term term object.
+	 * @param array $terms term object list.
 	 *
 	 * @return bool
 	 */
-	public function exsist_child( $id, $terms ) {
-		if( !$id ) {
+	public function exist_child( $term, Array $terms ) {
+		if( empty( $term->term_id ) ) {
 			return false;
 		}
 
-		foreach( $terms as $key => $term ) {
-			if( $term->parent == $id ) {
+		foreach( $terms as $obj ) {
+			if( $obj->parent == $term->term_id ) {
 				return true;
 			}
 		}
@@ -207,28 +210,27 @@ class WCBP {
 
 
 	/**
+	 * Register Permalink Structure for Product.
+	 *
 	 * @param string $post_type
 	 * @param array $args
 	 */
 	public function add_permastruct( $post_type, $args ) {
 
 		if( $post_type == 'product' ) {
-			$wcbp_base_setting = trim(get_option( 'wcbp_permalinks_base' ), '/');
+			$wcbp_base_setting = trim( get_option( 'wcbp_permalinks_base' ), '/' );
 			if(!$wcbp_base_setting) {
 				$wcbp_base_setting = 'shop';
 			}
 
-			add_rewrite_tag('%product_cat%', '(.+?)', "post_type=product&product_cat=");
-			// for post id.
-			//add_permastruct( $post_type, $wcbp_base_setting.'/%post_id%/' , $args );
-			//var_dump($args);
+			add_rewrite_tag( '%product_cat%', '(.+?)', "post_type=product&product_cat=" );
+
 			$permastruct_args = $args->rewrite;
 			$permastruct_args['feed'] = $permastruct_args['feeds'];
 			add_permastruct( $post_type, $wcbp_base_setting.'/%product_cat%/%postname%' , $permastruct_args );
+			// for post id.
+			//add_permastruct( $post_type, $wcbp_base_setting.'/%post_id%' ,  $permastruct_args );
 		}
-
-
-
 	}
 
 }
