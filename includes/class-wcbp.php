@@ -180,7 +180,7 @@ class WCBP {
 		foreach ( $terms as $key => $term ) {
 
 			if ( ! $this->exist_child_term( $term, $terms ) ) {
-				$new_term = [ $term ];
+				$new_term = array( $term );
 			}
 		}
 
