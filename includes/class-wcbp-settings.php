@@ -3,10 +3,7 @@
  * WooCommerce Breadcrumb Permalinks Settings Class
  *
  * @package   WooCommerce Breadcrumb Permalinks
- * @author    Captain Theme <info@captaintheme.com>
  * @license   GPL-2.0+
- * @link      http://captaintheme.com
- * @copyright 2014 Captain Theme
  * @since     1.0.0
  */
 
@@ -16,9 +13,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * WCBP Settings Class
- *
- * @package  WooCommerce Breadcrumb Permalinks
- * @author   Captain Theme <info@captaintheme.com>
  * @since    1.0.0
  */
 
@@ -26,6 +20,9 @@ class WCBP_Settings {
 
 	protected static $instance = null;
     
+    /**
+     * Constructor.
+     */
     private function __construct() {
 
 		add_action( 'admin_init', array( $this, 'permalinks_settings' ) );
@@ -35,9 +32,6 @@ class WCBP_Settings {
 
 	/**
 	 * Start the Class when called
-	 *
-	 * @package WooCommerce Breadcrumb Permalinks
-	 * @author  Captain Theme <info@captaintheme.com>
 	 * @since   1.0.0
 	 */
 
@@ -53,10 +47,7 @@ class WCBP_Settings {
 	}
 
 	/**
-	 *  Register and define the settings
-	 *
-	 * @package WooCommerce Breadcrumb Permalinks
-	 * @author  Captain Theme <info@captaintheme.com>
+	 * Register and define the settings
 	 * @since   1.0.0
 	 */
 
@@ -78,7 +69,10 @@ class WCBP_Settings {
 
 	}
 
-	// Display and fill the form field
+	/**
+	 * Display and fill the form field
+	 * @since  1.0.0
+	 */
 	public function setting_input() {
 
 		$options = get_option( 'wcbp_permalinks_base' );
@@ -102,11 +96,15 @@ class WCBP_Settings {
 
 	}
 
+	/**
+	 * Save the permalinks.
+	 * We need to save the options ourselves; settings api does not trigger save for the permalinks page
+	 * @since 1.0.0
+	 */
 	public function permalinks_save() {
 		if ( ! is_admin() )
 			return;
 
-		// We need to save the options ourselves; settings api does not trigger save for the permalinks page
 		if ( isset( $_POST['the_permalink_base'] ) ) {
 
 			$wcbp_base = wc_clean( $_POST['the_permalink_base'] );

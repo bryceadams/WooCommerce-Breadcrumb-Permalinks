@@ -1,14 +1,14 @@
 === Plugin Name ===
-Contributors: captaintheme
-Donate link: http://captaintheme.com
+Contributors: bryceadams, toro_unit
+Donate link: http://bryceadams.com
 Tags: woocommerce, permalinks, permalink, breadcrumb permalinks, woocommerce category url, ancestory permalinks, ancestory
-Requires at least: 3.8.0
-Tested up to: 3.9.1
-Stable tag: 1.0.0
+Requires at least: 4.0.0
+Tested up to: 4.3.0
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Allows you have breadcrumb permalinks for WooCommerce, including parent and child categories in a single product's URL.
+Allows you have breadcrumb permalinks for WooCommerce, including parent and multiple child categories in a single product's URL.
 
 == Description ==
 
@@ -27,6 +27,10 @@ Now that's a sexy URL.
 
 Install the plugin, set it up under **Settings > Permalinks** and start improving your SEO or whatever.
 
+The plugin also supports multiple child categories in the URL, so you could even have a URL like this:
+
+`http://meawesome.com/items/cool-stuff/cooler-stuff/mooarrrr-stuff/the-stuff/`
+
 == Installation ==
 
 I'll make this as simple as possible.
@@ -43,7 +47,7 @@ I'll make this as simple as possible.
 
 = I followed your instructions but keep getting those damn 404s! =
 
-Well then you're either an idiot or you don't have standard WordPress pretty permalinks enabled. Go to the top of the **Settings > Permalinks** page and make sure the **Common Settings** is something like **Post Name**.
+Well that's no good - maybe you don't have standard WordPress pretty permalinks enabled? Go to the top of the **Settings > Permalinks** page and make sure the **Common Settings** is something like **Post Name**.
 
 = It's all going to hell and I need help! =
 
@@ -55,10 +59,16 @@ I don't have the answer.
 
 == Screenshots ==
 
-1. What your settings should look like (but `items` can be whatever the hell you want).
+1. What your settings should look like (but `items` can be whatever you want).
 2. An example of an awesome URL, made possible by this plugin.
 
 == Changelog ==
+
+= 1.1.0 =
+* The day Hiroshi Urabe made it a lot better, by doing...
+* Fixing permalinks for multiple child category levels.
+* Using add_permastruct for registering the product permalink.
+* PHP 5.4 required - if that's a problem for you, use an older version or don't use the plugin - http://wpupdatephp.com/update/
 
 = 1.0.0 =
 * The day it started.

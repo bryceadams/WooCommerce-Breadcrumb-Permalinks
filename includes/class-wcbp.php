@@ -3,11 +3,9 @@
  * WooCommerce Breadcrumb Permalinks Class
  *
  * @package   WooCommerce Breadcrumb Permalinks
- * @author    Captain Theme <info@captaintheme.com>
+ * @author    Bryce Adams
  * @license   GPL-2.0+
- * @link      http://captaintheme.com
- * @copyright 2014 Captain Theme
- * @since     1.0.0
+ * @since     1.1.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -18,18 +16,20 @@ if ( ! defined( 'ABSPATH' ) ) {
  * WCBP Class
  *
  * @package  WooCommerce Breadcrumb Permalinks
- * @author   Captain Theme <info@captaintheme.com>
- * @since    1.0.0
+ * @since    1.1.0
  */
 
 class WCBP {
 
-	const VERSION = '1.0.0';
+	const VERSION = '1.1.0';
 
 	protected $plugin_slug = 'woocommerce-breadcrumb-permalinks';
 
 	protected static $instance = null;
 
+	/**
+	 * Constructor.
+	 */
 	private function __construct() {
 
 		add_action( 'admin_notices', array( $this, 'admin_notice' ) );
@@ -45,9 +45,6 @@ class WCBP {
 
 	/**
 	 * Start the Class when called
-	 *
-	 * @package WooCommerce Breadcrumb Permalinks
-	 * @author  Captain Theme <info@captaintheme.com>
 	 * @since   1.0.0
 	 */
 
@@ -65,20 +62,14 @@ class WCBP {
 
 	/**
 	 * Admin Notice on Plugin Activation
-	 *
-	 * @package WooCommerce Breadcrumb Permalinks
-	 * @author  Captain Theme <info@captaintheme.com>
-	 * @since   1.0.0
+	 * @since   1.1.0
 	 */
 
 	public function admin_notice() {
 
-    	global $current_user;
-        $user_id = $current_user->ID;
-
-    	if ( ! get_user_meta( $user_id, 'wcbp_ignore_notice' ) ) {
-            if ( current_user_can( 'publish_posts' ) ) {
-                echo '<div class="updated"><p><strong><a href="' . get_admin_url() . 'options-permalink.php' . '">';
+    	if ( ! get_option( 'wcbp_ignore_notice' ) ) {
+            if ( current_user_can( 'manage_options' ) ) {
+                echo '<div class="updated"><p><strong><a href="' . esc_url( admin_url( 'options-permalink.php' ) ) . '">';
                 _e( 'Please re-save your permalinks!', 'woocommerce-breadcrumb-permalinks' );
                 echo '</a></strong></p></div>';
             }
@@ -86,27 +77,27 @@ class WCBP {
 
     }
 
+    /**
+     * Remove admin notice when permalink settings saved.
+     * @since  1.1.0
+     */
 	public function nag_ignore() {
 
-    	global $current_user;
-        $user_id = $current_user->ID;
-
         if ( isset( $_GET['settings-updated'] ) && 'true' == $_GET['settings-updated'] ) {
-             add_user_meta( $user_id, 'wcbp_ignore_notice', 'true', true );
+             update_option( 'wcbp_ignore_notice', true );
         }
 
     }
 
     /**
 	 * Add permalinks settings action link to the plugins page.
-	 *
 	 * @since    1.0.0
 	 */
 	public function add_action_links( $links ) {
 
 		return array_merge(
 			array(
-				'settings' => '<a href="' . admin_url( 'options-permalink.php' ) . '">' . __( 'Permalinks', $this->plugin_slug ) . '</a>'
+				'settings' => '<a href="' . esc_url( admin_url( 'options-permalink.php' ) ) . '">' . __( 'Permalinks', $this->plugin_slug ) . '</a>'
 			),
 			$links
 		);
@@ -116,14 +107,10 @@ class WCBP {
 
 	/**
 	 * Rewrite Permalinks
-	 *
-	 * @package WooCommerce Breadcrumb Permalinks
-	 * @author  Captain Theme <info@captaintheme.com>
-	 * @since   1.0.0
+	 * @since   1.1.0
 	 *
 	 * @param $link
 	 * @param WP_Post $post
-	 *
 	 * @return string|void
 	 */
 
@@ -168,11 +155,10 @@ class WCBP {
 	}
 
 	/**
-	 *
 	 * Remove Parent Term from Term list.
+	 * @since 1.1.0
 	 *
 	 * @param array $terms
-	 *
 	 * @return array
 	 */
 	public function remove_parent_terms( Array $terms ) {
@@ -188,12 +174,11 @@ class WCBP {
 	}
 
 	/**
-	 *
-	 * search parent term in $terms
+	 * Search parent term in $terms
+	 * @since 1.1.0
 	 *
 	 * @param object $term term object.
 	 * @param array $terms term object list.
-	 *
 	 * @return bool
 	 */
 	public function exist_child_term( $term, Array $terms ) {
@@ -213,6 +198,7 @@ class WCBP {
 
 	/**
 	 * Register Permalink Structure for Product.
+	 * @since 1.1.0
 	 *
 	 * @param string $post_type
 	 * @param array $args
