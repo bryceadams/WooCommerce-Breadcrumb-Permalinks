@@ -34,7 +34,7 @@ class WCBP {
 
 		add_action( 'admin_notices', array( $this, 'admin_notice' ) );
 		add_action( 'admin_init', array( $this, 'nag_ignore' ) );
-		add_action( 'init', array( $this, 'rewrites_init' ) );
+		add_action( 'registered_post_type', array( $this, 'add_permastruct' ), 10, 2 );
 		add_filter( 'post_type_link', array( $this, 'post_type_link' ), 1, 3 );
 
 		// Add an action link pointing to the options page.
@@ -90,7 +90,7 @@ class WCBP {
 
     	global $current_user;
         $user_id = $current_user->ID;
-            
+
         if ( isset( $_GET['settings-updated'] ) && 'true' == $_GET['settings-updated'] ) {
              add_user_meta( $user_id, 'wcbp_ignore_notice', 'true', true );
         }
@@ -114,65 +114,125 @@ class WCBP {
 	}
 
 
-    /**
+	/**
 	 * Rewrite Permalinks
 	 *
 	 * @package WooCommerce Breadcrumb Permalinks
 	 * @author  Captain Theme <info@captaintheme.com>
 	 * @since   1.0.0
+	 *
+	 * @param $link
+	 * @param WP_Post $post
+	 *
+	 * @return string|void
 	 */
 
-	public function post_type_link( $link, $post = 0 ) {
+	public function post_type_link( $link, WP_Post $post ) {
 
-		global $product;
-		
-		$wcbp_base_setting = get_option( 'wcbp_permalinks_base' );
+		if ( $post->post_type == 'product' ) {
 
-		if ( $wcbp_base_setting ) {
-			$wcbp_base = get_option( 'wcbp_permalinks_base' );
-		} else {
-			$wcbp_base = 'shop';
-		}
+			if ( $terms = wp_get_post_terms( $post->ID, 'product_cat' ) ) {
 
-	    if ( $post->post_type == 'product' ){
+				$terms = $this->remove_parent_terms( $terms );
 
-	    	if ( $terms = wc_get_product_terms( $post->ID, 'product_cat', array( 'orderby' => 'parent', 'order' => 'DESC' ) ) ) {
+				$main_term = reset( $terms );
 
-				$main_term = $terms[0];
+				$ancestors = array_reverse( get_ancestors( $main_term->term_id, 'product_cat' ) );
 
-				$ancestors = get_ancestors( $main_term->term_id, 'product_cat' );
-
-				$ancestors = array_reverse( $ancestors );
-
-				$the_ancestor_slug = '';
+				$term_slugs = array();
 
 				foreach ( $ancestors as $ancestor ) {
 					$ancestor = get_term( $ancestor, 'product_cat' );
 
-					if ( ! is_wp_error( $ancestor ) && $ancestor )
-						$the_ancestor_slug = $ancestor->slug;
+					if ( ! is_wp_error( $ancestor ) && $ancestor ) {
+						$term_slugs[] = $ancestor->slug;
+					}
 				}
 
-				return home_url( $wcbp_base . '/' . $the_ancestor_slug . '/' . $main_term->slug . '/' . $post->post_name );
+				$term_slugs[] = $main_term->slug;
+				$term_slug    = implode( '/', $term_slugs );
+
+				$search  = array( '%post_id%', '%postname%', '%product_cat%' );
+				$replace = array( $post->ID, $post->post_name, $term_slug );
+
+				return str_replace( $search, $replace, $link );
 
 			} else {
 				return $link;
 			}
 
-	    } else {
-	        return $link;
-	    }
+		} else {
+			return $link;
+		}
 
 	}
 
-	public function rewrites_init() {
+	/**
+	 *
+	 * Remove Parent Term from Term list.
+	 *
+	 * @param array $terms
+	 *
+	 * @return array
+	 */
+	public function remove_parent_terms( Array $terms ) {
+		$new_term = array();
+		foreach ( $terms as $key => $term ) {
 
-	    add_rewrite_rule (
-	        'product/([0-9]+)?$',
-	        'index.php?post_type=product&p=$matches[1]',
-	        'top'
-	    );
+			if ( ! $this->exist_child_term( $term, $terms ) ) {
+				$new_term = array( $term );
+			}
+		}
 
+		return $new_term;
+	}
+
+	/**
+	 *
+	 * search parent term in $terms
+	 *
+	 * @param object $term term object.
+	 * @param array $terms term object list.
+	 *
+	 * @return bool
+	 */
+	public function exist_child_term( $term, Array $terms ) {
+		if ( empty( $term->term_id ) ) {
+			return false;
+		}
+
+		foreach ( $terms as $obj ) {
+			if ( $obj->parent == $term->term_id ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+
+	/**
+	 * Register Permalink Structure for Product.
+	 *
+	 * @param string $post_type
+	 * @param array $args
+	 */
+	public function add_permastruct( $post_type, $args ) {
+
+		if ( $post_type == 'product' ) {
+			$wcbp_base_setting = trim( get_option( 'wcbp_permalinks_base' ), '/' );
+			if ( ! $wcbp_base_setting ) {
+				$wcbp_base_setting = 'shop';
+			}
+
+			add_rewrite_tag( '%product_cat%', '(.+?)', "post_type=product&product_cat=" );
+
+			$permastruct_args         = $args->rewrite;
+			$permastruct_args['feed'] = $permastruct_args['feeds'];
+			add_permastruct( $post_type, $wcbp_base_setting . '/%product_cat%/%postname%', $permastruct_args );
+			// for post id.
+			//add_permastruct( $post_type, $wcbp_base_setting.'/%post_id%' ,  $permastruct_args );
+		}
 	}
 
 }
