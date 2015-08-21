@@ -31,6 +31,10 @@ The plugin also supports multiple child categories in the URL, so you could even
 
 `http://meawesome.com/items/cool-stuff/cooler-stuff/mooarrrr-stuff/the-stuff/`
 
+> #### PHP Requirement
+> This plugin requires PHP version 5.4 or higher.<br />
+> If you're still at PHP 5.2, it's time to update. [Read here why and how](http://www.wpupdatephp.com/update/).
+
 == Installation ==
 
 I'll make this as simple as possible.
